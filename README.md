@@ -10,3 +10,11 @@ Pseudobulking
 Milo (that paper that Valeriya shared).
 
 This seemed a good starting point for further investigation. 
+
+
+Options for data:
+
+- Microglia from the eggen dataset (grn cases) minus ALS microglia
+- single cell from sala frigerio 2019 (mouse MG) (ask Nico if we can't access)
+
+
