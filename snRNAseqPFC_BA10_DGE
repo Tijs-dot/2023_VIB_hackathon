@@ -5,7 +5,7 @@ This study provides data as described in Single-cell transcriptomic analysis of 
 CellRanger on fastq files:
 
 while read samplename; do
-     /home/twatzeels/cellranger/cellranger-7.0.1/cellranger count --id=snRNAseqPFC_BA10_cellranger --fastqs=/home/twatzeels/sn_Public_Data/AMP-AD/snRNAseqPFC_BA10/Gene_Expression_RNAseq --sample=$samplename --transcriptome=/home/twatzeels/references/10X/Downloads/refdata-gex-GRCh38-2020-A --localcores=16 --localmem=64
+     /home/twatzeels/cellranger/cellranger-7.0.1/cellranger count --id=snRNAseqPFC_BA10_$samplename --fastqs=/home/twatzeels/sn_Public_Data/AMP-AD/snRNAseqPFC_BA10/Gene_Expression_RNAseq --sample=$samplename --transcriptome=/home/twatzeels/references/10X/Downloads/refdata-gex-GRCh38-2020-A --localcores=16 --localmem=64
 done < samplelist.tsv
 
 Run standard Seurat workflow for DGE analysis in R:
