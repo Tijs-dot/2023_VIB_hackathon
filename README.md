@@ -18,3 +18,6 @@ Options for data:
 - single cell from sala frigerio 2019 (mouse MG) (ask Nico if we can't access)
 
 
+Interesting tool: miloDE
+https://www.biorxiv.org/content/10.1101/2023.03.08.531744v1.full
+
