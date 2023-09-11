@@ -1,14 +1,3 @@
-# DGE analysis in the snRNAseqPFC_BA10 "public" dataset
-
-This study provides data as described in Single-cell transcriptomic analysis of Alzheimer's disease. 48 brain specimens were selected from the the Religious Orders Study and Memory and Aging Project (ROSMAP), based on the following selection criteria: 24 individuals with elevated β-amyloid and other pathological hallmarks of AD, and 24 individuals with no or very low Aβ burden or other pathologies. Data consists of 80,660 droplet-based single-nucleus RNA-seq (snRNA-seq) profiles generated from the prefrontal cortex (Brodmann area 10).
-
-CellRanger on fastq files:
-
-while read samplename; do
-     /home/twatzeels/cellranger/cellranger-7.0.1/cellranger count --id=snRNAseqPFC_BA10_$samplename --fastqs=/home/twatzeels/sn_Public_Data/AMP-AD/snRNAseqPFC_BA10/Gene_Expression_RNAseq --sample=$samplename --transcriptome=/home/twatzeels/references/10X/Downloads/refdata-gex-GRCh38-2020-A --localcores=16 --localmem=64
-done < samplelist.tsv
-
-Run standard Seurat workflow for DGE analysis in R:
 
 
 
