@@ -1,0 +1,199 @@
+---
+title: "DE_comparison_mouse_gastrulation_plotting"
+author: "Xin Ge"
+date: "2023-09-13"
+output: html_document
+---
+
+
+```{r setup working directory, setup, include=FALSE}
+
+#setwd for all chunks
+knitr::opts_knit$set(root.dir = '/Users/gexin/Library/CloudStorage/OneDrive-UniversityofCambridge/CamBioHackathon/DE_comparison_mouse_gastrulation')
+
+```
+
+
+```{r eval=FALSE, include=FALSE}
+
+BiocManager::install("EnhancedVolcano")
+BiocManager::install("clusterProfiler")
+BiocManager::install("org.Mm.eg.db")
+BiocManager::install("DOSE")
+install.packages("lattice")
+devtools::install_github("GuangchuangYu/clusterProfiler")
+
+```
+
+```{r}
+
+library(tidyverse)
+library(EnhancedVolcano)
+library(pheatmap)
+library(ggpubr)
+library(clusterProfiler)
+library(org.Mm.eg.db)
+library(lattice)
+library(DOSE)
+library(enrichplot)
+
+
+```
+
+
+```{r}
+
+DESeq2 <- read_tsv("de_df_MouseGastrulationData.DESeq2.tsv")
+edgeR <- read_tsv("de_df_MouseGastrulationData.edgeR.tsv")
+MAST <- read_tsv("de_df_MouseGastrulationData.MAST.tsv")
+miloDE <- read_tsv("de_stat_df_MouseGastrulationData.miloDE.tsv")
+
+DESeq2_updated <- read_tsv("de_df_MouseGastrulationData.DESeq2_CaseVsCon.tsv")
+MAST_updated <- read_tsv("de_df_MouseGastrulationData.MAST_CaseVsCon.tsv")
+
+```
+
+
+```{r, fig.width = 15, fig.height = 15}
+
+p1 <- EnhancedVolcano(DESeq2_updated, lab = DESeq2_updated$Gene, x = 'avg_log2FC', y = 'p_val_adj', title = "DESeq2")
+p2 <- EnhancedVolcano(MAST_updated, lab = MAST_updated$Gene, x = 'avg_log2FC', y = 'p_val_adj', title = "MAST")
+p3 <- EnhancedVolcano(miloDE, lab = miloDE$gene, x = 'logFC', y = 'pval_corrected_across_nhoods', title = "miloDE_pval_corrected_across_nhoods")
+p4 <- EnhancedVolcano(miloDE, lab = miloDE$gene, x = 'logFC', y = 'pval_corrected_across_genes', title = "miloDE_pval_corrected_across_genes")
+
+ggarrange(p1, p2, p3, p4)
+
+```
+
+
+```{r eval=FALSE, include=FALSE}
+
+miloDE$log2FC <- miloDE$logFC/log10(2)
+EnhancedVolcano(miloDE, lab = miloDE$gene, x = 'log2FC', y = 'pval_corrected_across_nhoods')
+
+```
+
+
+```{r}
+
+DESeq2_filtered <- filter(DESeq2_updated, abs(avg_log2FC) >=1, p_val_adj <= 0.05)
+
+DESeq2_filtered %>%
+  pull(Gene) %>%
+  sapply(function(x)cat(paste0(x,"\n"))) -> DESeq2_filtered_gene_list_temp
+  
+```
+
+```{r}
+
+MAST_filtered <- filter(MAST_updated, abs(avg_log2FC) >=1, p_val_adj <= 0.05)
+
+MAST_filtered %>%
+  pull(Gene) %>%
+  sapply(function(x)cat(paste0(x,"\n"))) -> MAST_filtered_gene_list_temp
+  
+```
+
+```{r}
+
+miloDE_filtered <- filter(miloDE, abs(log2FC) >=1, pval_corrected_across_genes <= 0.05)
+
+miloDE_filtered %>%
+  pull(gene) %>%
+  sapply(function(x)cat(paste0(x,"\n"))) -> miloDE_gene_list_temp
+  
+```
+
+
+```{r}
+
+geneList_DESeq2 = DESeq2_filtered$avg_log2FC
+names(geneList_DESeq2) = as.character(DESeq2_filtered$Gene)
+geneList_DESeq2 = sort(geneList_DESeq2, decreasing = TRUE)
+
+gse_DESeq2 <- gseGO(geneList = geneList_DESeq2, 
+             ont ="ALL", 
+             keyType = "SYMBOL", 
+             nPerm = 10000, 
+             minGSSize = 3, 
+             maxGSSize = 800, 
+             pvalueCutoff = 0.1, 
+             verbose = TRUE, 
+             OrgDb = "org.Mm.eg.db", 
+             pAdjustMethod = "none")
+
+```
+
+```{r}
+
+#MAST_filtered$Gene_sorted <- sort(MAST_filtered$Gene, decreasing = TRUE)
+
+geneList_MAST = MAST_filtered$avg_log2FC
+names(geneList_MAST) = as.character(MAST_filtered$Gene)
+geneList_MAST = sort(geneList_MAST, decreasing = TRUE)
+
+gse_MAST <- gseGO(geneList = geneList_MAST, 
+             ont ="ALL", 
+             keyType = "SYMBOL", 
+             nPerm = 10000, 
+             minGSSize = 3, 
+             maxGSSize = 800, 
+             pvalueCutoff = 0.1, 
+             verbose = TRUE, 
+             OrgDb = "org.Mm.eg.db", 
+             pAdjustMethod = "none")
+
+```
+
+```{r}
+
+#MAST_filtered$Gene_sorted <- sort(MAST_filtered$Gene, decreasing = TRUE)
+
+geneList_miloDE = miloDE_filtered$log2FC
+names(geneList_miloDE) = as.character(miloDE_filtered$gene)
+geneList_miloDE = sort(geneList_miloDE, decreasing = TRUE)
+
+gse_MAST <- gseGO(geneList = geneList_miloDE, 
+             ont ="ALL", 
+             keyType = "SYMBOL", 
+             nPerm = 10000, 
+             minGSSize = 3, 
+             maxGSSize = 800, 
+             pvalueCutoff = 0.1, 
+             verbose = TRUE, 
+             OrgDb = "org.Mm.eg.db", 
+             pAdjustMethod = "none")
+
+```
+
+
+```{r}
+
+clusterProfiler::dotplot(gse_MAST, showCategory=10, split=".sign") + facet_grid(.~.sign) + ggtitle("MAST GO")
+
+```
+
+```{r}
+
+clusterProfiler::dotplot(gse_DESeq2, showCategory=10, split=".sign") + facet_grid(.~.sign) + ggtitle("DESeq2 GO")
+
+```
+
+
+```{r}
+
+clusterProfiler::dotplot(gse_miloDE, showCategory=10, split=".sign") + facet_grid(.~.sign) + ggtitle("miloDE GO")
+
+```
+
+
+```{r}
+
+#library(DOSE)
+#it didn't work
+clusterProfiler::goplot(gse_MAST)
+
+```
+
+
+
